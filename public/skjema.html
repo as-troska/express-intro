@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Dette er et skjema</h1>
+
+
+    <form action="/infoPost" method="POST">
+
+        <label for="navn">Navn</label>
+        <input type="text" name="navn" id="navn">
+
+        <label for="epost">Epost</label>
+        <input type="email" name="epost" id="epost">
+
+        <label for="melding">Melding</label>
+        <textarea name="melding" id="melding" cols="30" rows="10"></textarea>
+
+        <input type="submit" value="Send inn">
+    </form>
+</body>
+</html>
