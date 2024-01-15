@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        form {
+            display: grid;
+            grid-template-columns: 100px 2fr;
+            width: 500px;
+        }
+    </style>
+</head>
+<body>
+    <form action="/registrer" method="POST">
+        <label for="fornavn">Fornavn</label> 
+        <input type="text" name="fornavn">
+
+        <label for="etternavn">Etternavn</label> 
+        <input type="text" name="etternavn">
+
+        <label for="fdato">Fødselsdato</label> 
+        <input type="date" name="fdato">
+
+        <label for="epost">Epost</label>
+        <input type="email" name="epost">
+        
+        <label for="brukernavn>">Brukernavn</label>
+        <input type="text" name="brukernavn">
+        
+        <label for="passord">Passord</label>
+        <input type="password" name="passord">
+        
+        <input type="submit" value="Registrer">
+    </form>
+</body>
+</html>
