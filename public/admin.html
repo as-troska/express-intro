@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script defer>
+        async function getUsers() {
+            const users = await fetch("/brukere");
+            const userData = await users.json();
+
+            console.log(userData);
+
+            for (let user of userData) {
+                const userTable = document.getElementById("userTable");
+
+                const tr = document.createElement("tr");
+                const tdId = document.createElement("td");
+                tdId.innerText = user.id;
+
+                const tdFornavn = document.createElement("td");
+                tdFornavn.innerText = user.fornavn;
+
+                const tdEtternavn = document.createElement("td");
+                tdEtternavn.innerText = user.etternavn;
+
+                const tdFodselsdato = document.createElement("td");
+                tdFodselsdato.innerText = user.fdato;
+
+                const tdEpost = document.createElement("td");
+                tdEpost.innerText = user.epost;
+
+                const tdBrukernavn = document.createElement("td");
+                tdBrukernavn.innerText = user.brukernavn;
+
+                const tdPassord = document.createElement("td");
+                tdPassord.innerText = user.passord;
+
+                tr.appendChild(tdId);
+                tr.appendChild(tdFornavn);
+                tr.appendChild(tdEtternavn);
+                tr.appendChild(tdFodselsdato);
+                tr.appendChild(tdEpost);
+                tr.appendChild(tdBrukernavn);
+                tr.appendChild(tdPassord);
+
+                userTable.appendChild(tr);
+            }
+        }
+
+        getUsers();
+    </script>
+</head>
+<body>
+    <table id="userTable">
+        <tr>
+            <th>Id</th>
+            <th>Fornavn</th>
+            <th>Etternavn</th>
+            <th>Fødselsdato</th>
+            <th>Epost</th>
+            <th>Brukernavn</th>
+            <th>Passord</th>
+        </tr>
+        
+    </table>
+</body>
+</html>
