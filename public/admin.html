@@ -14,16 +14,9 @@
             for (let user of userData) {
                 const userTable = document.getElementById("userTable");
 
-                const row = document.createElement("tr");
-                row.id = user.id;
-
-                const tr = document.createElement("form");
-                tr.method = "POST";
-                tr.action = "/oppdatere";
-
+                const tr = document.createElement("tr");     
+                tr.id = "row" + user.id;         
                 
-                
-
                 const tdId = document.createElement("td");
                 tdId.innerText = user.id;
 
@@ -49,26 +42,30 @@
                 const updateButton = document.createElement("button");
                 updateButton.innerText = "Endre bruker";
                 updateButton.addEventListener("click", () => {
-                    let row = document.getElementById(user.id);
-                    
+                    let row = document.getElementById("row" + user.id);                    
 
                     let fornavnTd = row.children[1];
-                    fornavnTd.innerHTML = `<input type="text" value="${user.fornavn}">`;
+                    fornavnTd.innerHTML = `<input type="text" form="form${user.id}" value="${user.fornavn}">`;
 
                     let etternavnTd = row.children[2];
-                    etternavnTd.innerHTML = `<input type="text" value="${user.etternavn}">`;
+                    etternavnTd.innerHTML = `<input type="text" form="form${user.id}"  value="${user.etternavn}">`;
 
                     let fdatoTd = row.children[3];
-                    fdatoTd.innerHTML = `<input type="text" value="${user.fdato}">`;
+                    fdatoTd.innerHTML = `<input type="text" form="form${user.id}"  value="${user.fdato}">`;
 
                     let epostTd = row.children[4];
-                    epostTd.innerHTML = `<input type="text" value="${user.epost}">`;
+                    epostTd.innerHTML = `<input type="text" form="form${user.id}"  value="${user.epost}">`;
 
                     let brukernavnTd = row.children[5];
-                    brukernavnTd.innerHTML = `<input type="text" value="${user.brukernavn}">`;
+                    brukernavnTd.innerHTML = `<input type="text" form="form${user.id}" value="${user.brukernavn}">`;
 
                     let updateButtonTd = row.children[7];
-                    updateButtonTd.innerHTML = "<input type='submit' value='Lagre'>";
+                    updateButtonTd.innerHTML = `
+                    <form action="/oppdatere" method="POST" name="${user.id}" id="form${user.id}">
+                        <input type="hidden" name="id" value="${user.id}">
+                        <input type="submit" value="Lagre">
+                    </form>
+                    `
 
         
                 });
@@ -83,10 +80,7 @@
                 tr.appendChild(tdPassord);
                 tr.appendChild(tdUpdate);
 
-                row.appendChild(tr);
-
-
-                userTable.appendChild(row);
+                userTable.appendChild(tr);
             }
         }
 
