@@ -33,10 +33,7 @@
                 tdEpost.innerText = user.epost;
 
                 const tdBrukernavn = document.createElement("td");
-                tdBrukernavn.innerText = user.brukernavn;
-
-                const tdPassord = document.createElement("td");
-                tdPassord.innerText = user.passord;
+                tdBrukernavn.innerText = user.brukernavn;                
 
                 const tdUpdate = document.createElement("td");
                 const updateButton = document.createElement("button");
@@ -45,27 +42,63 @@
                     let row = document.getElementById("row" + user.id);                    
 
                     let fornavnTd = row.children[1];
-                    fornavnTd.innerHTML = `<input type="text" form="form${user.id}" value="${user.fornavn}">`;
+                    fornavnTd.innerHTML = `<input type="text" id="fornavn${user.id}" value="${user.fornavn}">`;
 
                     let etternavnTd = row.children[2];
-                    etternavnTd.innerHTML = `<input type="text" form="form${user.id}"  value="${user.etternavn}">`;
+                    etternavnTd.innerHTML = `<input type="text" id="etternavn${user.id}"  value="${user.etternavn}">`;
 
                     let fdatoTd = row.children[3];
-                    fdatoTd.innerHTML = `<input type="text" form="form${user.id}"  value="${user.fdato}">`;
+                    fdatoTd.innerHTML = `<input type="text" id="fdato${user.id}"  value="${user.fdato}">`;
 
                     let epostTd = row.children[4];
-                    epostTd.innerHTML = `<input type="text" form="form${user.id}"  value="${user.epost}">`;
+                    epostTd.innerHTML = `<input type="text" id="epost${user.id}"  value="${user.epost}">`;
 
                     let brukernavnTd = row.children[5];
-                    brukernavnTd.innerHTML = `<input type="text" form="form${user.id}" value="${user.brukernavn}">`;
+                    brukernavnTd.innerHTML = `<input type="text" id="brukernavn${user.id}" value="${user.brukernavn}">`;
 
-                    let updateButtonTd = row.children[7];
-                    updateButtonTd.innerHTML = `
-                    <form action="/oppdatere" method="POST" name="${user.id}" id="form${user.id}">
-                        <input type="hidden" name="id" value="${user.id}">
-                        <input type="submit" value="Lagre">
-                    </form>
-                    `
+                    let updateButtonTd = row.children[6];
+                    let saveButton = document.createElement("button");
+
+                    saveButton.innerText = "Lagre";
+
+                    saveButton.addEventListener("click", async () => {
+                        let id = user.id;
+                        let fornavn = document.getElementById("fornavn" + user.id).value;
+                        let etternavn = document.getElementById("etternavn" + user.id).value;
+                        let fdato = document.getElementById("fdato" + user.id).value;
+                        let epost = document.getElementById("epost"+ user.id).value;
+                        let brukernavn = document.getElementById("brukernavn" + user.id).value;
+                        
+                        let form = new FormData();
+                        form.append("id", id);
+                        form.append("fornavn", fornavn);
+                        form.append("etternavn", etternavn);
+                        form.append("fdato", fdato);
+                        form.append("epost", epost);
+                        form.append("brukernavn", brukernavn);
+
+                        let post = await fetch("/oppdatere", {
+                            method: "POST",                            
+                            body: new URLSearchParams(form)                            
+                        })     
+                        
+                        if (post.status !== 200) {
+                            alert("Noe gikk galt");
+                        } else {
+                            fornavnTd.innerHTML = fornavn;
+                            etternavnTd.innerHTML = etternavn;
+                            fdatoTd.innerHTML = fdato;
+                            epostTd.innerHTML = epost;
+                            brukernavnTd.innerHTML = brukernavn;
+
+                            updateButtonTd.innerHTML = "";
+                            updateButtonTd.appendChild(updateButton);                            
+                        }
+                                           
+                    })
+
+                    updateButtonTd.innerHTML = "";
+                    updateButtonTd.appendChild(saveButton);
 
         
                 });
@@ -77,7 +110,6 @@
                 tr.appendChild(tdFodselsdato);
                 tr.appendChild(tdEpost);
                 tr.appendChild(tdBrukernavn);
-                tr.appendChild(tdPassord);
                 tr.appendChild(tdUpdate);
 
                 userTable.appendChild(tr);

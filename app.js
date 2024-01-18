@@ -56,10 +56,10 @@ app.get("/brukere", (req, res) => {
 app.post("/oppdatere", (req, res) => {
     console.log(req.body)
     // UPDATE stamtment har syntaksen UPDATE tabell SET kolonne = verdi, kontonne = verdi WHERE kolonne = verdi
-    //const stmt = db.prepare("UPDATE user SET fornavn = ?, etternavn = ?, fdato = ?, epost = ?, brukernavn = ? WHERE id = ?");
-    //stmt.run(req.body.fornavn, req.body.etternavn, req.body.fdato, req.body.epost, req.body.brukernavn, req.body.id);
+    const stmt = db.prepare("UPDATE user SET fornavn = ?, etternavn = ?, fdato = ?, epost = ?, brukernavn = ? WHERE id = ?");
+    stmt.run(req.body.fornavn, req.body.etternavn, req.body.fdato, req.body.epost, req.body.brukernavn, req.body.id);
     //Sender brukeren tilbake til siden de kom fra, dvs skjemaet de var på.
-    res.redirect("back");
+    res.sendStatus(200);
 })
 
 //Starter sørveren på port 3000
