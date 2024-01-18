@@ -14,7 +14,16 @@
             for (let user of userData) {
                 const userTable = document.getElementById("userTable");
 
-                const tr = document.createElement("tr");
+                const row = document.createElement("tr");
+                row.id = user.id;
+
+                const tr = document.createElement("form");
+                tr.method = "POST";
+                tr.action = "/oppdatere";
+
+                
+                
+
                 const tdId = document.createElement("td");
                 tdId.innerText = user.id;
 
@@ -36,6 +45,35 @@
                 const tdPassord = document.createElement("td");
                 tdPassord.innerText = user.passord;
 
+                const tdUpdate = document.createElement("td");
+                const updateButton = document.createElement("button");
+                updateButton.innerText = "Endre bruker";
+                updateButton.addEventListener("click", () => {
+                    let row = document.getElementById(user.id);
+                    
+
+                    let fornavnTd = row.children[1];
+                    fornavnTd.innerHTML = `<input type="text" value="${user.fornavn}">`;
+
+                    let etternavnTd = row.children[2];
+                    etternavnTd.innerHTML = `<input type="text" value="${user.etternavn}">`;
+
+                    let fdatoTd = row.children[3];
+                    fdatoTd.innerHTML = `<input type="text" value="${user.fdato}">`;
+
+                    let epostTd = row.children[4];
+                    epostTd.innerHTML = `<input type="text" value="${user.epost}">`;
+
+                    let brukernavnTd = row.children[5];
+                    brukernavnTd.innerHTML = `<input type="text" value="${user.brukernavn}">`;
+
+                    let updateButtonTd = row.children[7];
+                    updateButtonTd.innerHTML = "<input type='submit' value='Lagre'>";
+
+        
+                });
+                tdUpdate.appendChild(updateButton);
+
                 tr.appendChild(tdId);
                 tr.appendChild(tdFornavn);
                 tr.appendChild(tdEtternavn);
@@ -43,8 +81,12 @@
                 tr.appendChild(tdEpost);
                 tr.appendChild(tdBrukernavn);
                 tr.appendChild(tdPassord);
+                tr.appendChild(tdUpdate);
 
-                userTable.appendChild(tr);
+                row.appendChild(tr);
+
+
+                userTable.appendChild(row);
             }
         }
 
