@@ -52,6 +52,15 @@ app.get("/brukere", (req, res) => {
     res.json(users)
 });
 
+//En rute for å oppdatere en bruker
+app.post("/oppdatere", (req, res) => {
+    // UPDATE stamtment har syntkasen UPDATE tabell SET kolonne = verdi, kontonne = verdi WHERE kolonne = verdi
+    const stmt = db.prepare("UPDATE user SET fornavn = ?, etternavn = ?, fdato = ?, epost = ?, brukernavn = ? WHERE id = ?");
+    stmt.run(req.body.fornavn, req.body.etternavn, req.body.fdato, req.body.epost, req.body.brukernavn, req.body.id);
+    //Sender brukeren tilbake til siden de kom fra, dvs skjemaet de var på.
+    res.redirect("back");
+})
+
 //Starter sørveren på port 3000
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
