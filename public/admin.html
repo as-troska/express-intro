@@ -114,6 +114,25 @@
         
                 });
                 tdUpdate.appendChild(updateButton);
+                // Lager en knapp for å slette en bruker
+                const tdDelete = document.createElement("td");
+                const deleteButton = document.createElement("button");
+                deleteButton.innerText = "Slett bruker";
+
+                // Legger til en eventlistener som sender en delete-request til serveren
+                deleteButton.addEventListener("click", async () => {
+                    let id = user.id;
+
+                    let post = await fetch("/slett/" + id)
+
+                    if (post.status !== 200) {
+                        alert("Noe gikk galt");
+                    } else {
+                        let row = document.getElementById("row" + user.id);
+                        row.remove();
+                    }
+                })
+                tdUpdate.appendChild(deleteButton);
 
                 tr.appendChild(tdId);
                 tr.appendChild(tdFornavn);

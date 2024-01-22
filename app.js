@@ -62,6 +62,14 @@ app.post("/oppdatere", (req, res) => {
     res.sendStatus(200);
 })
 
+app.get("/slett/:id", (req, res) => {
+    // DELETE stamtment har syntaksen DELETE FROM tabell WHERE kolonne = verdi
+    const stmt = db.prepare("DELETE FROM user WHERE id = ?");
+    stmt.run(req.params.id);
+    //Sender brukeren tilbake til siden de kom fra, dvs skjemaet de var på.
+    res.redirect("back")
+})
+
 //Starter sørveren på port 3000
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
