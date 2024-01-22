@@ -11,9 +11,11 @@
 
             console.log(userData);
 
+            // En løkke som går gjennom data fra databasen og oppretter en tabellrad for hver bruker
             for (let user of userData) {
                 const userTable = document.getElementById("userTable");
 
+                // Lager raden og gir den iden til brukeren. Denne kan være grei å ha for å finne igjen raden senere
                 const tr = document.createElement("tr");     
                 tr.id = "row" + user.id;         
                 
@@ -35,9 +37,11 @@
                 const tdBrukernavn = document.createElement("td");
                 tdBrukernavn.innerText = user.brukernavn;                
 
+                // Lager feltet hvor en kan velge å oppdatere brukeren
                 const tdUpdate = document.createElement("td");
                 const updateButton = document.createElement("button");
                 updateButton.innerText = "Endre bruker";
+                // Legger inn en eventlistener som endrer alle tabellcellene til inputfelt med samme verdi som lå i tabellen.
                 updateButton.addEventListener("click", () => {
                     let row = document.getElementById("row" + user.id);                    
 
@@ -57,11 +61,14 @@
                     brukernavnTd.innerHTML = `<input type="text" id="brukernavn${user.id}" value="${user.brukernavn}">`;
 
                     let updateButtonTd = row.children[6];
+                    // Lager en lagreknapp som erstatter Endre-knappen
                     let saveButton = document.createElement("button");
 
                     saveButton.innerText = "Lagre";
 
+                    // Legger inn en eventlistener som sender en post-request til serveren med dataen som er skrevet inn i inputfeltene
                     saveButton.addEventListener("click", async () => {
+                        // Finner feltene som er blitt endret til input-felt og henter ut verdien som er skrevet inn
                         let id = user.id;
                         let fornavn = document.getElementById("fornavn" + user.id).value;
                         let etternavn = document.getElementById("etternavn" + user.id).value;
@@ -69,6 +76,7 @@
                         let epost = document.getElementById("epost"+ user.id).value;
                         let brukernavn = document.getElementById("brukernavn" + user.id).value;
                         
+                        // Lager et form-element som kan sendes til serveren
                         let form = new FormData();
                         form.append("id", id);
                         form.append("fornavn", fornavn);
@@ -77,14 +85,17 @@
                         form.append("epost", epost);
                         form.append("brukernavn", brukernavn);
 
+                        // Sender en post-request til serveren med dataen fra form-elementet
                         let post = await fetch("/oppdatere", {
                             method: "POST",                            
                             body: new URLSearchParams(form)                            
                         })     
                         
+                        // Sjekker om post-requesten gikk bra. Hvis ikke, så får brukeren en feilmelding
                         if (post.status !== 200) {
                             alert("Noe gikk galt");
                         } else {
+                            // Hvis post-requesten gikk bra, så endres tabellen tilbake til å vise tekst i stedet for input-felt
                             fornavnTd.innerHTML = fornavn;
                             etternavnTd.innerHTML = etternavn;
                             fdatoTd.innerHTML = fdato;
@@ -96,7 +107,7 @@
                         }
                                            
                     })
-
+                    
                     updateButtonTd.innerHTML = "";
                     updateButtonTd.appendChild(saveButton);
 
@@ -128,7 +139,7 @@
             <th>Fødselsdato</th>
             <th>Epost</th>
             <th>Brukernavn</th>
-            <th>Passord</th>
+            <th>Adminhandlinger</th>
         </tr>
         
     </table>
