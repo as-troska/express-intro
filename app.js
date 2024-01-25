@@ -4,6 +4,8 @@ const path = require('path');
 const db = require("better-sqlite3")("database.db");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
+const fileUpload = require("express-fileupload")
+const fs = require("fs")
 
 //Lager en instans av Express i variabelen app
 const app = express();
@@ -102,6 +104,29 @@ app.get("/slett/:id", sjekkAdmin, (req, res) => {
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
 })
+
+app.get("/loggut", (req, res) => {
+    req.session.destroy();
+    res.redirect("/login");
+})
+app.post("/lastOpp", sjekkLogin, (req, res) => {
+    const filetypes = ["image/jpg", "image/png", "image/gif", "image/jpeg"]
+    
+    if(!req.files) {
+        return res.sendStatus(400)
+    }
+
+    const {image} = req.files        
+
+    if(filetypes.includes(image.mimetype)) {
+        image.mv(__dirname + "/public/img/" + image.name)
+        image.mv("../frontend/public/img/" + image.name)
+        console.log("File uploaded: " + image.name)
+        return res.sendStatus(200)        
+    } else {
+        return res.sendStatus(415)
+    }   
+});
 
 
 //En middleware som sjekker om brukeren er logget inn. Om ikke sender den brukeren til innloggingssiden.
