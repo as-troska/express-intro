@@ -1,7 +1,7 @@
 //Importerer pakkene vi skal bruke
 const express = require('express');
 const path = require('path');
-const db = require("better-sqlite3")("datbase.db");
+const db = require("better-sqlite3")("database.db");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
 
