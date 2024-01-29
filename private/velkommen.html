@@ -4,8 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+
 </head>
 <body>
-    <h1>Velkommen</h1>
+    <h1>Velkommen </h1>
+
+    <nav>
+        <ul>
+            <li><a href="http://localhost:3000/nyttBilde">Last opp nytt bilde</a></li>
+        </ul>
+
+        <ul>
+            <li><a href="http://localhost:3000/alleBilder">Se alle bilder</a></li>
+        </ul>
+    </nav>
+    
+    <main id="debug">
+
+    </main>
+
+    
+
+    <script defer>
+        let cookie = document.cookie.split("; ");
+        let cookieInfo = {};
+        cookie.forEach((item,index) => {
+            let i = item.split("=");
+            cookieInfo[i[0]]=i[1];
+        });
+
+        let overskrift = document.querySelector("h1");
+        overskrift.innerHTML = "Velkommen " + cookieInfo.fornavn;
+
+        let avsnitt = document.querySelector("#debug");
+        avsnitt.innerHTML = "IDen din er " + cookieInfo.userid;
+        
+        </script>
+
+    
 </body>
 </html>

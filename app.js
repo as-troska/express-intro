@@ -1,11 +1,12 @@
 //Importerer pakkene vi skal bruke
 const express = require('express');
 const path = require('path');
-const db = require("better-sqlite3")("database.db");
+const db = require("better-sqlite3")("database.db", {verbose: console.log});
 const bcrypt = require("bcrypt");
 const session = require("express-session");
 const fileUpload = require("express-fileupload")
 const fs = require("fs")
+const ruter = require("./ruter")
 
 //Lager en instans av Express i variabelen app
 const app = express();
@@ -13,6 +14,7 @@ const app = express();
 
 //Setter opp en mappe for statiske filer
 app.use(express.static(path.join(__dirname, "public")));
+app.use(fileUpload())
 
 //Gjør at vi kan lese data fra et skjema som sendes inn via POST
 app.use(express.urlencoded({ extended: false }));
@@ -24,74 +26,17 @@ app.use(session({
     saveUninitialized: false
 }));
 
-//Setter opp en rute som kan ta imot et skjema som sendes inn via POST
-app.post("/registrer", (req, res) => {
-    //Lager en SQL-setning som setter inn data i databasen når den kjøres. Spørsmålstegnene representerer verdier som skal settes inn.
-    const stmt = db.prepare("INSERT INTO user (fornavn, etternavn, fdato, epost, brukernavn, passord) VALUES (?, ?, ?, ?, ?, ?)");
-    //Hasher passordet som er sendt inn via skjemaet
-    const hash = bcrypt.hashSync(req.body.passord, 10);    
-    //Kjører SQL-setningen. Verdiene fra skjemaet settes inn på plassene til spørsmålstegnene.
-    stmt.run(req.body.fornavn, req.body.etternavn, req.body.fdato, req.body.epost, req.body.brukernavn, hash);
-    //Sender brukeren til velkommen.html
-    res.sendFile(path.join(__dirname, "private", "velkommen.html"))
-});
+app.post("/registrer", ruter.registrer);
+app.post("/login", ruter.login);
+app.get("/brukere", sjekkAdmin, ruter.brukere);
+app.post("/oppdatere", sjekkAdmin, ruter.oppdatere)
+app.get("/admin", sjekkAdmin, ruter.admin)
+app.get("/login", ruter.loginaction)
 
-app.post("/login", (req, res) => {
-    //Lager en SQL-setning som henter ut data fra databasen når den kjøres. Spørsmålstegnene representerer verdier som skal hentes ut.
-    const stmt = db.prepare("SELECT * FROM user WHERE brukernavn = ?");
-    //Kjører SQL-setningen. Verdiene fra skjemaet settes inn på plassene til spørsmålstegnene. Det lagres et objekt med all informasjonen i variabelen user.
-    const user = stmt.get(req.body.brukernavn);  
-      
-
-    //Sjekker om brukeren finnes og sjekker deretter om hash av passordetm som er sendt inn matcher hashen lagret i databasen
-    if (user && bcrypt.compareSync(req.body.passord, user.passord)) {
-        //Lagrer brukerinformasjonen i session
-        req.session.loggetInn = true;
-        req.session.brukernavn = user.brukernavn;
-        req.session.fornavn = user.fornavn;
-        req.session.etternavn = user.etternavn;
-        req.session.epost = user.epost;
-        req.session.fdato = user.fdato;
-        req.session.id = user.id;
-
-        if (user.id === 1) {
-            req.session.admin = true;
-        }
-
-        //Sender brukeren til velkommen.html om brukeren finnes og passordet er riktig
-        res.sendFile(path.join(__dirname, "private", "velkommen.html"))
-    } else {
-        //Sender brukeren til feil.html om ikke brukeren finnes eller passordet er feil
-        res.sendFile(path.join(__dirname, "public", "feil.html"))
-    }
-});
-
-//En rute som henter ut alle brukere fra databasen og sender dem tilbake som JSON
-app.get("/brukere", sjekkAdmin, (req, res) => { 
-    //Merk at denne ruten bør sikres på ett eller annet tidspunkt. Om ikke kan alle hente ut all brukerdata når som helst.
-    const stmt = db.prepare("SELECT * FROM user");
-    const users = stmt.all();
-    res.json(users)
-});
-
-//En rute for å oppdatere en bruker
-app.post("/oppdatere", sjekkAdmin, (req, res) => {
-    console.log(req.body)
-    // UPDATE stamtment har syntaksen UPDATE tabell SET kolonne = verdi, kontonne = verdi WHERE kolonne = verdi
-    const stmt = db.prepare("UPDATE user SET fornavn = ?, etternavn = ?, fdato = ?, epost = ?, brukernavn = ? WHERE id = ?");
-    stmt.run(req.body.fornavn, req.body.etternavn, req.body.fdato, req.body.epost, req.body.brukernavn, req.body.id);
-    //Sender brukeren tilbake til siden de kom fra, dvs skjemaet de var på.
-    res.sendStatus(200);
+app.get("/", (req, res) => {
+    res.redirect("/login")  
 })
 
-app.get("/admin", sjekkAdmin, (req, res) => {
-    res.sendFile(path.join(__dirname, "private", "admin.html"))
-})
-
-app.get("/login", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "login.html"))
-}
-)
 app.get("/slett/:id", sjekkAdmin, (req, res) => {
     // DELETE stamtment har syntaksen DELETE FROM tabell WHERE kolonne = verdi
     const stmt = db.prepare("DELETE FROM user WHERE id = ?");
@@ -109,24 +54,39 @@ app.get("/loggut", (req, res) => {
     req.session.destroy();
     res.redirect("/login");
 })
-app.post("/lastOpp", sjekkLogin, (req, res) => {
+
+app.get("/nyttBilde", sjekkLogin, (req, res) => {
+    res.sendFile(path.join(__dirname, "private", "nyttBilde.html"))
+})
+
+app.post("/lastOpp", sjekkLogin, (req, res) => {    
     const filetypes = ["image/jpg", "image/png", "image/gif", "image/jpeg"]
     
     if(!req.files) {
         return res.sendStatus(400)
     }
 
-    const {image} = req.files        
-
-    if(filetypes.includes(image.mimetype)) {
-        image.mv(__dirname + "/public/img/" + image.name)
-        image.mv("../frontend/public/img/" + image.name)
-        console.log("File uploaded: " + image.name)
+    if(filetypes.includes(req.files.bilde.mimetype)) {
+        req.files.bilde.mv(__dirname + "/public/img/" + req.files.bilde.name)
+        console.log("File uploaded: " + req.files.bilde.name)
+        const stmt = db.prepare("INSERT INTO photos (url, caption, user_id) VALUES (?, ?, ?)")
+        stmt.run("public/img/" + req.files.bilde.name, req.body.caption, req.session.userid)
         return res.sendStatus(200)        
     } else {
         return res.sendStatus(415)
-    }   
+    }
+
 });
+
+app.get("/bilder", sjekkLogin, (req, res) => {
+    const stmt = db.prepare("SELECT * FROM photos")
+    const photos = stmt.all()
+    res.json(photos)   
+})
+
+app.get("/alleBilder", sjekkLogin, (req, res) => {
+    res.sendFile(path.join(__dirname, "private", "bilder.html"))
+})
 
 
 //En middleware som sjekker om brukeren er logget inn. Om ikke sender den brukeren til innloggingssiden.
