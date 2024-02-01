@@ -30,7 +30,7 @@ async function slett(req, res) {
 async function kommenter(req, res) {
     console.log(req.body)
     const stmt = db.prepare("INSERT INTO comments (comment, user_id, photo_id) VALUES (?, ?, ?)")
-    stmt.run(req.body.kommentar, req.session.userid, req.body.photo_id)
+    stmt.run(req.body.kommentar, req.session.userid, req.body.bildeid)
     res.sendStatus(200)
 }
 

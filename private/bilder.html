@@ -17,7 +17,7 @@
 
             for (let bilde of bilder) {
 
-                console.log(bilde)
+                
                 let bildeSeksjon = document.createElement("section");
                 let bildet = document.createElement("img");
                 let beskrivelse = document.createElement("p");
@@ -27,12 +27,14 @@
                 likes.innerText = "Like";
                 let kommenter = document.createElement("textarea")
                 kommenter.addEventListener("keyup", (evt) => {
-                    console.log(evt.key)
+                    
                     if (evt.key === "Enter") {
                         const data = {
                             kommentar: kommenter.value,
                             bildeid: bilde.id
                         }
+
+                        console.log(data)
 
                         fetch("/kommenter", {
                             method: "POST",
@@ -43,10 +45,20 @@
                     }
                 })
 
+                let kommentarer = await fetch("/kommentarer/" + bilde.id)
+                let kommentarliste = await kommentarer.json();
+
+                for (let kommentar of kommentarliste) {
+                    console.log(kommentar)
+                }
+
                 bildeSeksjon.appendChild(bildet);
                 bildeSeksjon.appendChild(beskrivelse);
                 bildeSeksjon.appendChild(likes);
                 bildeSeksjon.appendChild(kommenter);
+
+
+
                 document.body.appendChild(bildeSeksjon)
             }           
     
