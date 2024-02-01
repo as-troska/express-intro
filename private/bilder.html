@@ -11,13 +11,16 @@
 
 
     <script>
+        // I følgende funksjon hentes all data fra serveren, og tegnes deretter opp
         async function drawPhotos() {
+            // Her hentes data om bildene som er lastet opp av brukere
             let bildedata = await fetch("/bilder");
             let bilder = await bildedata.json();
 
+            // Vi har nå et array "bilder", som vi kan gå gjennom bilde for bilde. 
             for (let bilde of bilder) {
 
-                
+                // I "bilde" ligger nå et objekt med data fra databasen. Nedenfor lages htlm-elementer til dataen.               
                 let bildeSeksjon = document.createElement("section");
                 let bildet = document.createElement("img");
                 let beskrivelse = document.createElement("p");
@@ -25,36 +28,49 @@
                 beskrivelse.innerText = bilde.caption;
                 let likes = document.createElement("p");
                 likes.innerText = "Like";
+                // Dette er kommentarfeltet. Denne er knyttet til databasen, da kommentarer må trigge en input-rute, som skriver til databasen.
                 let kommenter = document.createElement("textarea")
                 kommenter.addEventListener("keyup", (evt) => {
-                    
+                    // Triggingen skjer i denne eventListeneren. Når brukeren trykker enter, skal kommentaren skrives til databasen.
+
                     if (evt.key === "Enter") {
                         const data = {
                             kommentar: kommenter.value,
                             bildeid: bilde.id
                         }
 
-                        console.log(data)
-
-                        fetch("/kommenter", {
+                    // Her skrives kommentaren gjennom en POST-request til serveren.
+                    fetch("/kommenter", {
                             method: "POST",
                             body: new URLSearchParams(data)
-                        })
-
+                    })
+                    // Når kommentaren er skrevet til databasen, skal den vises på siden. Derfor må vi hente alle kommentarer på nytt.
+                    let kommmentarUtskrift = document.createElement("p")
+                    kommmentarUtskrift.innerText = kommenter.value;   
+                    bildeSeksjon.appendChild(kommmentarUtskrift)
+                        kommenter.value = "";
                         kommenter.blur();
+
+
                     }
                 })
+
+                bildeSeksjon.appendChild(bildet);
+                bildeSeksjon.appendChild(beskrivelse);
+                bildeSeksjon.appendChild(likes);
 
                 let kommentarer = await fetch("/kommentarer/" + bilde.id)
                 let kommentarliste = await kommentarer.json();
 
                 for (let kommentar of kommentarliste) {
-                    console.log(kommentar)
+                    console.log(kommentar)                    
+
+                    let kommmentarUtskrift = document.createElement("p")
+                    kommmentarUtskrift.innerText = kommentar.comment;   
+                    bildeSeksjon.appendChild(kommmentarUtskrift)
                 }
 
-                bildeSeksjon.appendChild(bildet);
-                bildeSeksjon.appendChild(beskrivelse);
-                bildeSeksjon.appendChild(likes);
+                
                 bildeSeksjon.appendChild(kommenter);
 
 
