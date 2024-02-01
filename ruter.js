@@ -5,17 +5,7 @@ const session = require("express-session");
 const fileUpload = require("express-fileupload")
 const fs = require("fs")
 
-//Setter opp en rute som kan ta imot et registreringsskjema som sendes inn via POST
-async function registrer(req, res) {
-        //Lager en SQL-setning som setter inn data i databasen når den kjøres. Spørsmålstegnene representerer verdier som skal settes inn.
-        const stmt = db.prepare("INSERT INTO user (fornavn, etternavn, fdato, epost, brukernavn, passord) VALUES (?, ?, ?, ?, ?, ?)");
-        //Hasher passordet som er sendt inn via skjemaet
-        const hash = bcrypt.hashSync(req.body.passord, 10);    
-        //Kjører SQL-setningen. Verdiene fra skjemaet settes inn på plassene til spørsmålstegnene.
-        stmt.run(req.body.fornavn, req.body.etternavn, req.body.fdato, req.body.epost, req.body.brukernavn, hash);
-        //Sender brukeren til velkommen.html
-        res.sendFile(path.join(__dirname, "private", "velkommen.html"))
-}
+
 
 //Setter opp en rute som tar i mot login-skjemaet og logger inn brukeren om den finnes i databasen
 async function login(req, res) {
@@ -57,22 +47,6 @@ async function login(req, res) {
 }
 
 //En rute som henter ut alle brukere fra databasen og sender dem tilbake som JSON
-async function brukere (req, res) { 
-        //Merk at denne ruten bør sikres på ett eller annet tidspunkt. Om ikke kan alle hente ut all brukerdata når som helst.
-        const stmt = db.prepare("SELECT * FROM user");
-        const users = stmt.all();
-        res.json(users)
-}
-
-//En rute for å oppdatere en bruker
-async function oppdatere (req, res) {
-        console.log(req.body)
-        // UPDATE stamtment har syntaksen UPDATE tabell SET kolonne = verdi, kontonne = verdi WHERE kolonne = verdi
-        const stmt = db.prepare("UPDATE user SET fornavn = ?, etternavn = ?, fdato = ?, epost = ?, brukernavn = ? WHERE id = ?");
-        stmt.run(req.body.fornavn, req.body.etternavn, req.body.fdato, req.body.epost, req.body.brukernavn, req.body.id);
-        //Sender brukeren tilbake til siden de kom fra, dvs skjemaet de var på.
-        res.sendStatus(200);
-}
 
 async function admin(req, res) {
         res.sendFile(path.join(__dirname, "private", "admin.html"))
@@ -82,10 +56,23 @@ async function loginaction  (req, res) {
         res.sendFile(path.join(__dirname, "public", "login.html"))        
 }
 
+async function loggut(req, res) {
+        req.session.destroy();
+        res.redirect("/login");
+}
 
-exports.registrer = registrer;
+async function nyttBilde(req, res) {
+        res.sendFile(path.join(__dirname, "private", "nyttBilde.html"))
+}
+
+async function alleBilder(req, res) {
+        res.sendFile(path.join(__dirname, "private", "bilder.html"))
+}
+
+
+exports.nyttBilde = nyttBilde;
 exports.login = login;
-exports.brukere = brukere;
-exports.oppdatere = oppdatere;
 exports.loginaction = loginaction;
 exports.admin = admin;
+exports.loggut = loggut;
+exports.alleBilder = alleBilder;

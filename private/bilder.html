@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+
+
+
+    <script>
+        async function drawPhotos() {
+            let bildedata = await fetch("/bilder");
+            let bilder = await bildedata.json();
+
+            for (let bilde of bilder) {
+
+                console.log(bilde)
+                let bildeSeksjon = document.createElement("section");
+                let bildet = document.createElement("img");
+                let beskrivelse = document.createElement("p");
+                bildet.src = "./" + bilde.url;
+                beskrivelse.innerText = bilde.caption;
+                let likes = document.createElement("p");
+                likes.innerText = "Like";
+                let kommenter = document.createElement("textarea")
+                kommenter.addEventListener("keyup", (evt) => {
+                    console.log(evt.key)
+                    if (evt.key === "Enter") {
+                        const data = {
+                            kommentar: kommenter.value,
+                            bildeid: bilde.id
+                        }
+
+                        fetch("/kommenter", {
+                            method: "POST",
+                            body: new URLSearchParams(data)
+                        })
+
+                        kommenter.blur();
+                    }
+                })
+
+                bildeSeksjon.appendChild(bildet);
+                bildeSeksjon.appendChild(beskrivelse);
+                bildeSeksjon.appendChild(likes);
+                bildeSeksjon.appendChild(kommenter);
+                document.body.appendChild(bildeSeksjon)
+            }           
+    
+        }
+
+        drawPhotos();
+
+
+    </script>
+</body>
+</html>
