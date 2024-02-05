@@ -59,7 +59,7 @@ app.get("/", (req, res) => {
 
 
 //Starter sørveren på port 3000
-app.listen(3000, "192.168.133.108", () => {
+app.listen(3333, () => {
     console.log('Server is running on port 3000');
 })
 

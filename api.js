@@ -55,7 +55,7 @@ async function lastopp(req, res) {
         req.files.bilde.mv(__dirname + "/public/img/" + req.files.bilde.name)
         console.log("File uploaded: " + req.files.bilde.name)
         const stmt = db.prepare("INSERT INTO photos (url, caption, user_id) VALUES (?, ?, ?)")
-        stmt.run("public/img/" + req.files.bilde.name, req.body.caption, req.session.userid)
+        stmt.run("img/" + req.files.bilde.name, req.body.caption, req.session.userid)
         return res.sendStatus(200)        
     } else {
         return res.sendStatus(415)

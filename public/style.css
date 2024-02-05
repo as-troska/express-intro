@@ -39,7 +39,8 @@ section {
 
 .bildeOgBeskrivelse {
     display: flex;
-    flex-direction: column;    
+    flex-direction: column;
+    max-width: 500px;    
 }
 
 .likeOgKommenter {
