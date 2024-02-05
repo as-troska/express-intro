@@ -63,6 +63,29 @@ async function lastopp(req, res) {
 
 }
 
+async function liked(req, res) {
+    const stmt = db.prepare("SELECT * FROM likes WHERE photo_id = ? AND user_id = ?")
+    const liked = stmt.get(req.params.id, req.session.userid)
+
+    if(liked) {
+        res.json({liked: true})
+    } else {
+        res.json({liked: false})
+    }
+}
+
+async function likes(req, res) {
+    const stmt = db.prepare("SELECT user.brukernavn FROM likes INNER JOIN user ON likes.user_id = user.id WHERE photo_id = ? ")
+    const likes = stmt.all(req.params.id)
+    res.json(likes)
+}
+
+async function like(req, res) {
+    const stmt = db.prepare("INSERT INTO likes (photo_id, user_id) VALUES (?, ?)")
+    stmt.run(req.params.id, req.session.userid)
+    res.sendStatus(200)
+}
+
 async function brukere (req, res) { 
     const stmt = db.prepare("SELECT * FROM user");
     const users = stmt.all();
@@ -89,3 +112,6 @@ exports.lastopp = lastopp;
 exports.brukere = brukere;
 exports.bilder = bilder;
 exports.kommentarer = kommentarer;
+exports.liked = liked;
+exports.likes = likes;
+exports.like = like;

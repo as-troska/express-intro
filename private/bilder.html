@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     
@@ -22,12 +24,61 @@
 
                 // I "bilde" ligger nå et objekt med data fra databasen. Nedenfor lages htlm-elementer til dataen.               
                 let bildeSeksjon = document.createElement("section");
+                let bildetOgBeskrivelse = document.createElement("div");
                 let bildet = document.createElement("img");
+                let likeOgKommenter = document.createElement("div");
                 let beskrivelse = document.createElement("p");
                 bildet.src = "./" + bilde.url;
                 beskrivelse.innerText = bilde.caption;
+                
+                // Her lages et element for å like bildet. Dette er en knapp som brukeren kan trykke på for å like bildet.                
                 let likes = document.createElement("p");
-                likes.innerText = "Like";
+                // Vi må sjekke om brukeren allererde har likt bildet, slik av det ikke kan likes flere ganger av en bruker
+                let checkLiked = await fetch("/liked/" + bilde.id)
+                let liked = await checkLiked.json();
+                
+                // Dersom bildet er likt vises en farget tommel opp
+                if (liked.liked) {
+                    likes.innerText = "👍";
+                    likes.classList.add("liked");
+                    likes.dataset.liked = "true";
+                } else {
+                    // Dersom bildet ikke er likt vises en grå tommel opp, og det legges på en event-listener, som skriver til databasen når brukeren trykker på tommel opp
+                    likes.innerText = "👍";
+                    likes.classList.add("unliked");
+                    
+                    likes.dataset.liked = "false";
+                    likes.addEventListener("click", async () => {
+                        if (likes.dataset.liked === "true") {
+                            return;
+                        } else {
+                            let data = {
+                                bildeid: bilde.id
+                            }
+                            let response = await fetch("/like/" + bilde.id, {
+                                method: "POST",
+                                body: new URLSearchParams(data)
+                            })
+                            likes.classList.remove("unliked");
+                            likes.classList.add("liked");                            
+                            likes.dataset.liked = "true";
+                        }                    
+                    })                    
+                }
+
+                // Her hentes antall likes fra databasen, og vises på siden.
+                let numberOfLikes = await fetch("/likes/" + bilde.id)
+                let likesData = await numberOfLikes.json();                
+
+                if (likesData.length > 0) {
+                    likes.innerText += likesData.length;
+                    
+                    // Her hentes brukernavnene til de som har likt bildet, og vises på siden.
+                    for (let like of likesData) {
+                        likes.innerText += " " + like.brukernavn;
+                    }
+                }       
+
                 // Dette er kommentarfeltet. Denne er knyttet til databasen, da kommentarer må trigge en input-rute, som skriver til databasen.
                 let kommenter = document.createElement("textarea")
                 kommenter.addEventListener("keyup", (evt) => {
@@ -46,35 +97,59 @@
                     })
                     // Når kommentaren er skrevet til databasen, skal den vises på siden. Derfor må vi hente alle kommentarer på nytt.
                     let kommmentarUtskrift = document.createElement("p")
-                    kommmentarUtskrift.innerText = kommenter.value;   
-                    bildeSeksjon.appendChild(kommmentarUtskrift)
+                    kommmentarUtskrift.innerText = kommenter.value;
+                    let sisteKommentar = document.getElementsByClassName("kommentarerElement")
+                    console.log(sisteKommentar)
+                        if (sisteKommentar % 2 === 0) {
+                            kommmentarUtskrift.classList.add("kommentarer");
+                        } else {
+                            kommmentarUtskrift.classList.add("kommentarer2");
+                        }
                         kommenter.value = "";
-                        kommenter.blur();
-
+                        kommenter.blur();                       
+                        bildeSeksjon.appendChild(kommmentarUtskrift)                       
 
                     }
                 })
 
-                bildeSeksjon.appendChild(bildet);
-                bildeSeksjon.appendChild(beskrivelse);
-                bildeSeksjon.appendChild(likes);
+                bildetOgBeskrivelse.classList.add("bildeOgBeskrivelse");
+                bildet.classList.add("bilde");
+                beskrivelse.classList.add("beskrivelse");
+                likeOgKommenter.classList.add("likeOgKommenter");
+                likes.classList.add("likes");
+                kommenter.classList.add("kommenter");              
+
+
+                bildetOgBeskrivelse.appendChild(bildet);
+                bildetOgBeskrivelse.appendChild(beskrivelse);
+                bildeSeksjon.appendChild(bildetOgBeskrivelse);
+                likeOgKommenter.appendChild(likes);
+                likeOgKommenter.appendChild(kommenter);
+                bildeSeksjon.appendChild(likeOgKommenter);
+
+                let kommentarerElement = document.createElement("div");
+                kommentarerElement.classList.add("kommentarerElement");
 
                 let kommentarer = await fetch("/kommentarer/" + bilde.id)
                 let kommentarliste = await kommentarer.json();
 
-                for (let kommentar of kommentarliste) {
-                    console.log(kommentar)                    
+
+                let kommentarTeller = 1;
+                for (let kommentar of kommentarliste) {                                 
+                    
 
                     let kommmentarUtskrift = document.createElement("p")
-                    kommmentarUtskrift.innerText = kommentar.comment;   
-                    bildeSeksjon.appendChild(kommmentarUtskrift)
-                }
-
-                
-                bildeSeksjon.appendChild(kommenter);
-
-
-
+                    kommmentarUtskrift.innerText = kommentar.comment;
+                    kommmentarUtskrift.dataset.id = kommentarTeller;  
+                    if (kommentarTeller % 2 === 0) {
+                        kommmentarUtskrift.classList.add("kommentarer");
+                    } else {
+                        kommmentarUtskrift.classList.add("kommentarer2");
+                    } 
+                    kommentarerElement.appendChild(kommmentarUtskrift)
+                    kommentarTeller++;
+                }             
+                bildeSeksjon.appendChild(kommentarerElement);
                 document.body.appendChild(bildeSeksjon)
             }           
     

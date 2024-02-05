@@ -47,6 +47,9 @@ app.get("/brukere", sjekkAdmin, api.brukere);
 app.post("/oppdatere", sjekkAdmin, api.oppdatere)
 app.get("/slett/:id", sjekkAdmin, api.slett)
 app.get("/kommentarer/:id", sjekkLogin, api.kommentarer)
+app.post("/like/:id", sjekkLogin, api.like)
+app.get("/likes/:id", sjekkLogin, api.likes)
+app.get("/liked/:id", sjekkLogin, api.liked)
 
 app.get("/", (req, res) => {
     res.redirect("/login")  
@@ -56,17 +59,9 @@ app.get("/", (req, res) => {
 
 
 //Starter sørveren på port 3000
-app.listen(3000, () => {
+app.listen(3000, "192.168.133.108", () => {
     console.log('Server is running on port 3000');
 })
-
-
-
-
-
-
-
-
 
 
 
